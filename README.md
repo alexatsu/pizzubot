@@ -7,6 +7,6 @@
 
 ## How to setup
 
-- fill `.env` file with your data from ci folder
+- fill `.env` file with your data from ci folder.
 - pnpm install
 - pnpm start
