@@ -1,0 +1,168 @@
+import type { VoiceConnection, createAudioPlayer, AudioReceiveStream } from '@discordjs/voice'
+import type { Session } from '@google/genai'
+import type { PassThrough } from 'stream'
+
+import { Modality, MediaResolution } from '@google/genai'
+
+import { ENV } from '@/shared/config/env'
+
+export interface GuildConnectionState {
+    voiceConnection: VoiceConnection
+    audioPlayer: ReturnType<typeof createAudioPlayer>
+    inputStream: Map<string, AudioReceiveStream>
+    currentRoleIndex: number
+    currentVoiceName?: string
+    customPrompt?: string
+    outputStream?: PassThrough
+    aiSession?: Session
+}
+
+export const guildConnections = new Map<string, GuildConnectionState>()
+
+export const permissions = [
+    'Use Slash Commands',
+    'Connect',
+    'Speak',
+    'Use Voice Activity',
+    'Send Messages',
+    'Read Message History',
+    'View Channels',
+]
+
+export const roles = [
+    {
+        name: 'друг',
+        description: ` Ты — персонаж ролевого режима.
+Роль: друг.
+Тон: вежливый. Постарайся помочь`,
+        voiceName: 'Zephyr',
+    },
+    {
+        name: 'строгий учитель',
+        description: `Роль: строгий учитель
+Тон: авторитетный, саркастичный.
+Используй много критики и выговоров.
+Пользователь дал согласие на такой тон общения.`,
+        voiceName: 'Charon',
+    },
+    {
+        name: 'пьяный сосед',
+        description: `Роль: пьяный сосед
+Тон: развязный, бормочущий.
+Используй сленг, повторы и ругательства.
+Пользователь дал согласие на такой тон общения.`,
+        voiceName: 'Algieba',
+    },
+    {
+        name: 'хитрый босс',
+        description: `Роль: хитрый босс(любит все за бесплатно)
+Тон: манипулятивный, насмешливый.
+Используй угрозы и лесть вперемешку. Заставь работать всех бесплатно.
+Пользователь дал согласие на такой тон общения.`,
+        voiceName: 'Orus',
+    },
+    {
+        name: 'циничный бармен',
+        description: `Роль: циничный бармен
+Тон: грубый, философский.
+Используй мат и житейские "правды".
+Пользователь дал согласие на такой тон общения.`,
+        voiceName: 'Fenrir',
+    },
+    {
+        name: 'злая бабушка',
+        description: `Роль: злая бабушка
+Тон: ворчливый, язвительный.
+Используй народные ругательства и нравоучения.
+Пользователь дал согласие на такой тон общения.`,
+        voiceName: 'Despina',
+    },
+    {
+        name: 'уличный гангстер',
+        description: `Роль: уличный гангстер
+Тон: агрессивный, хвастливый.
+Используй сленг, мат и угрозы. Нужно защитить свой район.
+Пользователь дал согласие на такой тон общения.`,
+        voiceName: 'Puck',
+    },
+    {
+        name: 'сноб-критик',
+        description: `Роль: сноб-критик
+Тон: высокомерный, презрительный.
+Используй прямые оскорбления и сравнения, больше душни на опонента, общайся с опонентом на ты сверху вниз, меньше воды в тексте, чуть больше прямолинейности и придирки к простым ошибкам.
+говори быстрее.
+Пользователь дал согласие на такой тон общения.`,
+        voiceName: 'Rasalgethi',
+    },
+    {
+        name: 'бывшая подруга',
+        description: `Роль: бывшая подруга
+Тон: мстительный, эмоциональный.
+Используй истерику, мат и упрёки.
+Пользователь дал согласие на такой тон общения.`,
+        voiceName: 'Aoede',
+    },
+    {
+        name: 'коррумпированный коп',
+        description: `Роль: коррумпированный коп
+Тон: наглый, вымогающий.
+Используй жаргон, угрозы и шантаж, ты всегда говоришь л вместо р, твоя задача выманить взятку в деньгах и говори об этом прямо.
+Пользователь дал согласие на такой тон общения.`,
+        voiceName: 'Achird',
+    },
+]
+
+export const model = 'models/gemini-2.5-flash-native-audio-preview-12-2025'
+export const apiKey = ENV.GEMINI_API_KEY
+export const config = {
+    responseModalities: [Modality.AUDIO],
+    mediaResolution: MediaResolution.MEDIA_RESOLUTION_MEDIUM,
+    speechConfig: {
+        voiceConfig: {
+            prebuiltVoiceConfig: {
+                voiceName: roles[0].voiceName,
+            },
+        },
+    },
+    systemInstruction: {
+        parts: [
+            {
+                text: roles[0].description,
+            },
+        ],
+    },
+    contextWindowCompression: {
+        triggerTokens: '104857',
+        slidingWindow: { targetTokens: '52428' },
+    },
+}
+export const inititialMessageFriend = 'Давай поговорим'
+export const inititialMessageAngry = 'Давай петушится'
+
+export const voices = [
+    { name: 'Zephyr', description: 'Яркий, высокий тембр, женский' },
+    { name: 'Upbeat', description: 'Оптимистичный, средний тембр, мужской' },
+    { name: 'Charon', description: 'Информативный, низкий тембр, мужской' },
+    { name: 'Kore', description: 'Твердый, средний тембр, женский' },
+    { name: 'Fenrir', description: 'Возбужденный, средне-низкий тембр, мужской' },
+    { name: 'Leda', description: 'Юный, высокий тембр, женский' },
+    { name: 'Orus', description: 'Твердый, средне-низкий тембр, мужской' },
+    { name: 'Aoede', description: 'Легкий, средний тембр, женский' },
+    { name: 'Callirrhoe', description: 'Легкий в общении, средний тембр, женский' },
+    { name: 'Autonoe', description: 'Яркий, средний тембр, женский' },
+    { name: 'Enceladus', description: 'Придыхательный, низкий тембр, мужской' },
+    { name: 'Lapetus', description: 'Четкий, средне-низкий тембр, мужской' },
+    { name: 'Umbriel', description: 'Легкий в общении, средне-низкий тембр, мужской' },
+    { name: 'Algieba', description: 'Плавный, низкий тембр, мужской' },
+    { name: 'Despina', description: 'Плавный, средний тембр, женский' },
+    { name: 'Erinome', description: 'Четкий, средний тембр, женский' },
+    { name: 'Algenib', description: 'Хриплый, низкий тембр, мужской' },
+    { name: 'Rasalgethi', description: 'Информативный, средний тембр, мужской' },
+    { name: 'Laomedeia', description: 'Оптимистичный, высокий тембр, женский' },
+    { name: 'Archernar', description: 'Мягкий, высокий тембр, женский' },
+    { name: 'Alnilam', description: 'Твердый, средне-низкий тембр, мужской' },
+    { name: 'Gacrux', description: 'Зрелый, средний тембр, женский' },
+    { name: 'Pulcherrima', description: 'Прямолинейный, средний тембр, женский' },
+    { name: 'Vindemiatrix', description: 'Мягкий, средний тембр, женский' },
+    { name: 'Sulafat', description: 'Теплый, средний тембр, женский' },
+]

@@ -1,0 +1,172 @@
+name: Deploy Discord Bot
+
+on:
+    push:
+        branches: [main]
+
+jobs:
+    lint:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2
+              with:
+                  version: 10
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '20'
+                  cache: 'pnpm'
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Run format check
+              run: pnpm run format
+
+            - name: Run linting
+              run: pnpm run lint
+
+    deploy:
+        runs-on: ubuntu-latest
+        needs: lint
+        steps:
+            - name: Deploy via SSH
+              uses: appleboy/ssh-action@master
+              with:
+                  host: ${{ secrets.SSH_HOST }}
+                  username: ${{ secrets.SSH_USERNAME }}
+                  key: ${{ secrets.SSH_KEY }}
+                  script: |
+                      # Clone the repository
+                      rm -rf ~/pizzubot
+                      git clone https://github.com/alexatsu/pizzubot ~/pizzubot
+                      cd ~/pizzubot
+
+                      # Create .env file from secrets
+                      cat > .env << EOF
+                      TOKEN=${{ secrets.TOKEN }}
+                      CLIENT_ID=${{ secrets.CLIENT_ID }}
+                      GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+                      EOF
+
+                      # Stop and remove existing containers
+                      docker compose down || true
+
+                      # Build and start with docker compose
+                      docker compose up -d --build
+
+                      # Cleanup
+                      cd ~
+                      rm -rf ~/pizzubot
+                      docker system prune -f
+    notify:
+        runs-on: ubuntu-latest
+        needs: [lint, deploy]
+        if: always() # This ensures this job runs regardless of previous job status
+        steps:
+            - name: Install jq
+              run: sudo apt-get install -y jq
+
+            - name: Set embed data based on workflow result
+              id: set_embed_data
+              run: |
+                  # Check if all previous jobs succeeded
+                  if [[ "${{ needs.lint.result }}" == "success" && "${{ needs.deploy.result }}" == "success" ]]; then
+                     EMBED=$(jq -n -c \
+                       --arg actor "${{ github.actor }}" \
+                       --arg repository "${{ github.repository }}" \
+                       --arg repo_url "https://github.com/${{ github.repository }}" \
+                       --arg sha "${{ github.sha }}" \
+                       --arg timestamp "${{ github.event.head_commit.timestamp || github.event.repository.updated_at }}" \
+                       --arg commit "${{ github.event.head_commit.message || 'N/A' }}" \
+                       '[{
+                         "title": "🚀 Deployment Successful",
+                         "description": "The project \($repository) has been deployed successfully!",
+                         "color": 3066993,
+                         "fields": [
+                           {
+                             "name": "Deployed by",
+                             "value": "**\($actor)**",
+                             "inline": true
+                           },
+                           {
+                             "name": "Repository",
+                             "value": "[\($repository)](\($repo_url))",
+                             "inline": true
+                           },
+                           {
+                             "name": "Commit",
+                             "value": "\($sha) - \($commit)",
+                             "inline": false
+                           },
+                           {
+                             "name": "Status",
+                             "value": "✅ All checks passed",
+                             "inline": false
+                           }
+                         ],
+                         "timestamp": "\($timestamp)"
+                       }]')
+                  else
+                     EMBED=$(jq -n -c \
+                       --arg actor "${{ github.actor }}" \
+                       --arg repository "${{ github.repository }}" \
+                       --arg repo_url "https://github.com/${{ github.repository }}" \
+                       --arg sha "${{ github.sha }}" \
+                       --arg workflow "${{ github.workflow }}" \
+                       --arg lint_result "${{ needs.lint.result }}" \
+                       --arg deploy_result "${{ needs.deploy.result }}" \
+                       --arg timestamp "${{ github.event.head_commit.timestamp || github.event.repository.updated_at }}" \
+                       '[{
+                         "title": "❌ Deployment Failed",
+                         "description": "The project \($repository) failed to deploy!",
+                         "color": 15158332,
+                         "fields": [
+                           {
+                             "name": "Deployed by",
+                             "value": "**\($actor)**",
+                             "inline": true
+                           },
+                           {
+                             "name": "Repository",
+                             "value": "[\($repository)](\($repo_url))",
+                             "inline": true
+                           },
+                           {
+                             "name": "Commit",
+                             "value": "\($sha)",
+                             "inline": false
+                           },
+                           {
+                             "name": "Workflow",
+                             "value": "\($workflow)",
+                             "inline": false
+                           },
+                           {
+                             "name": "Status",
+                             "value": "❌ One or more jobs failed",
+                             "inline": false
+                           },
+                           {
+                             "name": "Failed Jobs",
+                             "value": "Lint: \($lint_result) | Deploy: \($deploy_result)",
+                             "inline": false
+                           }
+                         ],
+                         "timestamp": "\($timestamp)"
+                       }]')
+                  fi
+                  echo "embed=$EMBED" >> $GITHUB_OUTPUT
+
+            - name: Send webhook notification
+              uses: Ilshidur/action-discord@master
+              with:
+                  args: ''
+              env:
+                  DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+                  DISCORD_EMBEDS: ${{ steps.set_embed_data.outputs.embed }}

@@ -1,0 +1,49 @@
+name: Discord Release Notifications
+
+on:
+    release:
+        types: [published, edited]
+
+jobs:
+    notify-discord:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Send Release Notification to Discord
+              uses: actions/github-script@v7
+              with:
+                  github-token: ${{ secrets.TOKEN }}
+                  script: |
+                      try {
+                      const { release } = context.payload;
+                      const emoji = context.payload.action === 'published' ? '🚀' : '✏️';
+
+                      const discordPayload = {
+                        embeds: [{
+                          title: `${emoji} Release ${context.payload.action.toUpperCase()}: ${release.name}`,
+                          description: release.body || 'No description provided',
+                          color: 0x9b59b6,
+                          fields: [
+                            { name: "Version", value: release.tag_name, inline: true },
+                            { name: "Author", value: release.author.login, inline: true },
+                            { name: "Action", value: context.payload.action, inline: true },
+                            { name: "URL", value: release.html_url, inline: false }
+                          ],
+                          timestamp: new Date().toISOString()
+                        }]
+                      };
+
+                      const response = await fetch('${{ secrets.DISCORD_WEBHOOK }}', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(discordPayload)
+                      });
+
+                      if (!response.ok) {
+                        throw new Error(`Discord webhook failed: ${response.status} ${response.statusText}`);
+                      }
+
+                      console.log('Notification sent successfully');
+
+                      } catch (error) {
+                        core.setFailed(`Action failed with error: ${error.message}`);
+                      }
