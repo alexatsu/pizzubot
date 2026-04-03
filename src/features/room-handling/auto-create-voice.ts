@@ -2,8 +2,8 @@ import type { VoiceChannel, VoiceState } from 'discord.js'
 
 import { ChannelType, Events, PermissionFlagsBits } from 'discord.js'
 
-import { client } from '@/shared/config/client'
 import { CREATE_VOICE_CHANNEL_ID } from '@/features/room-handling/config'
+import { client } from '@/shared/config/client'
 
 export const tempChannels = new Set<string>()
 

@@ -8,10 +8,10 @@ import {
     type APIEmbedField,
 } from 'discord.js'
 
+import { LOG_CHANNEL_ID } from '@/features/logging/config'
 import { getLogColor, LogEventTypes } from '@/features/logging/shared/colors'
 import { client } from '@/shared/config/client'
 import {PREVENT_DUPLICATE_MENTIONS } from '@/shared/config/state'
-import { LOG_CHANNEL_ID } from '@/features/logging/config'
 
 export function changeNicknameEvent() {
     client.on(Events.GuildMemberUpdate, async (oldMember, newMember) => {
