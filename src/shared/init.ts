@@ -10,10 +10,11 @@ export async function initCommands() {
     const rest = new REST({ version: '10' }).setToken(ENV.TOKEN)
 
     try {
-        await rest.put(Routes.applicationCommands(ENV.CLIENT_ID), { body })
+        await rest.put(Routes.applicationGuildCommands(ENV.CLIENT_ID, ENV.GUILD_ID), { body })
         console.log(
             '✅ Registered commands:',
             body.map(c => c.name),
+            
         )
     } catch (error) {
         console.error('❌ Failed to register:', error)
