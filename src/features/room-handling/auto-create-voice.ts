@@ -1,4 +1,4 @@
-import type { VoiceChannel, VoiceState } from 'discord.js'
+import type { VoiceBasedChannel, VoiceState } from 'discord.js'
 
 import { ChannelType, Events, PermissionFlagsBits } from 'discord.js'
 
@@ -7,41 +7,26 @@ import { client } from '@/shared/config/client'
 
 export const tempChannels = new Set<string>()
 
-export function registerTempChannel(channel: VoiceChannel) {
-    tempChannels.add(channel.id)
-    console.log(`Registered temp channel: ${channel.id}`)
-}
-
 export function createTempVCEvent() {
     client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
-        const userWasNotOnServer =
-            !oldState.channel && newState.channel?.id === CREATE_VOICE_CHANNEL_ID // when user was not in the other channel
-        const member = newState.member
+        const oldChannel = oldState.channel
+        const newChannel = newState.channel
 
-        if (userWasNotOnServer) {
-            console.log(`User ${newState.member?.user.tag} joined lobby`)
+        const joinedLobby =
+            oldChannel?.id !== CREATE_VOICE_CHANNEL_ID &&
+            newChannel?.id === CREATE_VOICE_CHANNEL_ID &&
+            newState.member
 
-            try {
-                const channelName = await createChannel(newState)
-                console.log(`Created personal channel: ${channelName} for ${member?.user.tag}`)
-            } catch (error) {
-                console.error('Error creating personal channel:', error)
-            }
+        if (joinedLobby && !tempChannels.has(newChannel?.id)) {
+            await createChannel(newState)
+            return
         }
-        const userWasInTheChannel = oldState.channel
-        const userInTheChannel = newState.channel
-        const isChannelChanged = oldState.channel?.id !== newState.channel?.id
-        const isNewLobby = newState.channel?.id === CREATE_VOICE_CHANNEL_ID
 
-        if (userWasInTheChannel && userInTheChannel && isChannelChanged && isNewLobby) {
-            console.log(`User ${newState.member?.user.tag} switched to lobby`)
+        const leftTempChannel =
+            oldChannel && tempChannels.has(oldChannel.id) && oldChannel.id !== newChannel?.id
 
-            try {
-                const channelName = await createChannel(newState)
-                console.log(`Created personal channel for switcher: ${channelName}`)
-            } catch (error) {
-                console.error('Error creating channel for switcher:', error)
-            }
+        if (leftTempChannel) {
+            await deleteChannel(oldState, oldChannel)
         }
     })
 }
@@ -73,7 +58,9 @@ const createChannel = async (newState: VoiceState) => {
         },
     ]
 
-    const channelName = `${member.user.username}'s Room`
+    const safeChannelName = (name: string) => name.toLowerCase().replace(/[^a-z0-9]/g, '')
+
+    const channelName = `${safeChannelName(member.displayName)}-${member.id}`
 
     const newChannel = await newState.guild.channels.create({
         name: channelName,
@@ -91,15 +78,34 @@ const createChannel = async (newState: VoiceState) => {
     return newChannel
 }
 
-export function deleteEmptyTempVCEvent() {
-    client.on(Events.VoiceStateUpdate, async (oldState: VoiceState) => {
-        if (oldState.channel && tempChannels.has(oldState.channel.id)) {
-            const channel = oldState.channel
+async function deleteChannel(oldState: VoiceState, oldChannel: VoiceBasedChannel) {
+    try {
+        const fresh = await oldState.guild.channels.fetch(oldChannel.id)
 
-            if (channel.members.size === 0) {
-                await channel.delete().catch(() => {})
-                tempChannels.delete(channel.id)
-            }
+        if (!fresh?.isVoiceBased()) return
+
+        if (fresh.members.size === 0) {
+            await fresh.permissionOverwrites
+                .edit(oldState.guild.roles.everyone.id, {
+                    Connect: false,
+                })
+                .catch(() => {})
+
+            tempChannels.delete(fresh.id)
+
+            setTimeout(async () => {
+                try {
+                    const finalCheck = await oldState.guild.channels.fetch(fresh.id)
+                    if (finalCheck?.isVoiceBased() && finalCheck.members.size === 0) {
+                        await fresh.delete()
+                        console.log(`Deleted locked empty channel: ${fresh.id}`)
+                    }
+                } catch (error) {
+                    console.error(`Failed to delete channel ${fresh.id}:`, error)
+                }
+            }, 1000)
         }
-    })
+    } catch (error) {
+        console.error(`Error handling temp channel leave ${oldChannel.id}:`, error)
+    }
 }
