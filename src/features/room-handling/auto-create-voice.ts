@@ -60,7 +60,7 @@ const createChannel = async (newState: VoiceState) => {
 
     const safeChannelName = (name: string) => name.toLowerCase().replace(/[^a-z0-9]/g, '')
 
-    const channelName = `${safeChannelName(member.displayName)}-${member.id}`
+    const channelName = `${safeChannelName(member.displayName)}'s room`
 
     const newChannel = await newState.guild.channels.create({
         name: channelName,
