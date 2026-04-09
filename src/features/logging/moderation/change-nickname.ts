@@ -7,6 +7,7 @@ import {
     AuditLogEvent,
     type APIEmbedField,
 } from 'discord.js'
+
 import { LOG_CHANNEL_ID } from '@/features/logging/config'
 import { getLogColor, LogEventTypes } from '@/features/logging/shared/colors'
 import { client } from '@/shared/config/client'

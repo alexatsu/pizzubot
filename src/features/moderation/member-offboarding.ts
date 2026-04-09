@@ -1,4 +1,5 @@
 import { Events } from 'discord.js'
+
 import { client } from '@/shared/config/client'
 import { prisma } from '@/shared/prisma/client'
 import { RoleType } from '@/shared/prisma/generated/enums'
@@ -12,6 +13,26 @@ async function removeUserFromDb(discordUserId: string) {
     if (!user) {
         console.log('user not found')
         throw new Error('User not found')
+    }
+
+    const customRoles = await prisma.role.findMany({
+        where: {
+            userId: user.id,
+            roleType: RoleType.Custom,
+        },
+        select: { discordRoleId: true },
+    })
+
+    const guild = client.guilds.cache.first()
+    if (guild) {
+        const member = await guild.members.fetch(discordUserId).catch(() => null)
+
+        if (member) {
+            const roleIds = customRoles.map(r => r.discordRoleId)
+            if (roleIds.length > 0) {
+                await member.roles.remove(roleIds)
+            }
+        }
     }
 
     await prisma.role.deleteMany({

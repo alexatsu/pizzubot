@@ -1,9 +1,10 @@
 import type { CommandInteraction } from 'discord.js'
 
 import { MessageFlags, SlashCommandBuilder, type CacheType } from 'discord.js'
-import { ensureUser } from '@/shared/prisma/user'
+
 import { type CommandHandler, CommandType } from '@/shared/lib/interaction-events/commands'
 import { prisma } from '@/shared/prisma/client'
+import { ensureUser } from '@/shared/prisma/user'
 
 export enum WalletCommands {
     Balance = 'wallet-balance',
