@@ -50,6 +50,7 @@ jobs:
                       # Create .env file from secrets
                       cat > .env << EOF
                       TOKEN=${{ secrets.TOKEN }}
+                      GUILD_ID=${{ secrets.GUILD_ID }}
                       CLIENT_ID=${{ secrets.CLIENT_ID }}
                       GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
                       DATABASE_URL=${{ secrets.DATABASE_URL }}
