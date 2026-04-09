@@ -15,6 +15,26 @@ async function removeUserFromDb(discordUserId: string) {
         throw new Error('User not found')
     }
 
+    const customRoles = await prisma.role.findMany({
+        where: {
+            userId: user.id,
+            roleType: RoleType.Custom,
+        },
+        select: { discordRoleId: true },
+    })
+
+    const guild = client.guilds.cache.first()
+    if (guild) {
+        const member = await guild.members.fetch(discordUserId).catch(() => null)
+
+        if (member) {
+            const roleIds = customRoles.map(r => r.discordRoleId)
+            if (roleIds.length > 0) {
+                await member.roles.remove(roleIds)
+            }
+        }
+    }
+
     await prisma.role.deleteMany({
         where: {
             userId: user.id,
