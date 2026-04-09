@@ -7,17 +7,11 @@ import { GoogleGenAI } from '@google/genai'
 import prism from 'prism-media'
 import { Writable, PassThrough } from 'stream'
 import { pipeline } from 'stream/promises'
-
-import {
-    apiKey,
-    config,
-    guildConnections,
-    inititialMessageFriend,
-    model,
-    type GuildConnectionState,
-} from '@/features/ai/config'
-import { downsample48To16, upsample24MonoTo48Stereo } from '@/features/ai/gemini/audio'
+import { type GuildConnectionState, apiKey, model, inititialMessageFriend, guildConnections, config } from '@/features/ai/config'
+import { upsample24MonoTo48Stereo, downsample48To16 } from '@/features/ai/gemini/audio'
 import { client } from '@/shared/config/client'
+
+
 
 export function clearOutputStream(guildState: GuildConnectionState) {
     if (guildState.outputStream && !guildState.outputStream.destroyed) {

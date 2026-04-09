@@ -4,8 +4,7 @@
         "module": "esnext",
         "moduleResolution": "bundler",
         "allowJs": true,
-        "allowImportingTsExtensions": true,
-        "noEmit": true,
+        "noEmit": false,
         "strict": true,
         "skipLibCheck": true,
         "allowSyntheticDefaultImports": true,
@@ -13,28 +12,14 @@
         "forceConsistentCasingInFileNames": true,
         "isolatedModules": true,
         "verbatimModuleSyntax": true,
-        "typeRoots": [
-            "./node_modules/@types",
-            "src/shared/types"
-        ],
+        "typeRoots": ["./node_modules/@types", "src/shared/types"],
         "outDir": "dist",
-        "rootDir": "src",
         "baseUrl": "./src", // Enables absolute imports from "src"
+        "rootDir": "src",
         "paths": {
-            "@/*": [
-                "./*"
-            ], // Optional: Map "@/" to "./src/"
-            "@/shared": [
-                "./shared"
-            ]
+            "@/*": ["./*"] // Optional: Map "@/" to "./src/"
         }
     },
-    "include": [
-        "src/**/*",
-        "assets"
-    ],
-    "exclude": [
-        "node_modules",
-        "dist"
-    ]
+    "include": ["src/**/*", "assets"],
+    "exclude": ["node_modules", "dist", "prisma.config.ts"]
 }

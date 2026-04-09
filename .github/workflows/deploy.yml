@@ -52,6 +52,10 @@ jobs:
                       TOKEN=${{ secrets.TOKEN }}
                       CLIENT_ID=${{ secrets.CLIENT_ID }}
                       GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+                      DATABASE_URL=${{ secrets.DATABASE_URL }}
+                      POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+                      POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+                      POSTGRES_DB=${{ secrets.POSTGRES_DB }}
                       EOF
 
                       # Stop and remove existing containers

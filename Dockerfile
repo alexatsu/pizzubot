@@ -1,16 +1,11 @@
-FROM node:25-alpine
-RUN npm install -g pnpm
-
+FROM node:25-alpine3.22 AS builder
 WORKDIR /app
+COPY package.json pnpm-lock.yaml ./
+RUN npm install -g pnpm && pnpm install
 
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
-RUN \
-  if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
-  elif [ -f package-lock.json ]; then npm ci; \
-  elif [ -f pnpm-lock.yaml ]; then pnpm i --frozen-lockfile; \
-  else echo "Lockfile not found." && exit 1; \
-  fi
-
+FROM node:25-alpine
+WORKDIR /app
+RUN npm install -g pnpm
+COPY --from=builder /app/node_modules ./node_modules
 COPY . .
-
-CMD ["pnpm", "run", "start"]  
+CMD ["sh", "-c", "pnpm deploy:db && pnpm start"]

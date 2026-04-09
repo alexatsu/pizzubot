@@ -3,8 +3,8 @@ import type { Session } from '@google/genai'
 import type { PassThrough } from 'stream'
 
 import { Modality, MediaResolution } from '@google/genai'
-
 import { ENV } from '@/shared/config/env'
+
 
 export interface GuildConnectionState {
     voiceConnection: VoiceConnection

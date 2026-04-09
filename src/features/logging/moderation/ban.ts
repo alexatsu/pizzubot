@@ -1,8 +1,8 @@
 import { Events, AuditLogEvent, EmbedBuilder } from 'discord.js'
-
 import { LOG_CHANNEL_ID } from '@/features/logging/config'
 import { getLogColor, LogEventTypes } from '@/features/logging/shared/colors'
 import { client } from '@/shared/config/client'
+
 
 export function banUserEvent() {
     client.on(Events.GuildBanAdd, async ban => {

@@ -16,11 +16,12 @@ import {
     type PrivateThreadChannel,
     type PublicThreadChannel,
 } from 'discord.js'
-
 import { LOG_CHANNEL_ID } from '@/features/logging/config'
 import { getLogColor, LogEventTypes, type LogEventType } from '@/features/logging/shared/colors'
 import { client } from '@/shared/config/client'
-import {  PREVENT_DUPLICATE_MENTIONS } from '@/shared/config/state'
+import { PREVENT_DUPLICATE_MENTIONS } from '@/shared/config/state'
+
+
 
 export function roleUpdateEvent() {
     client.on(Events.GuildMemberUpdate, async (oldMember, newMember) => {

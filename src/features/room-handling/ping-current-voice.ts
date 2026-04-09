@@ -2,7 +2,7 @@ import type { CacheType } from 'discord.js'
 
 import { SlashCommandBuilder, type CommandInteraction, type GuildMember } from 'discord.js'
 
-import { CommandType, type CommandHandler } from '@/shared/lib/commands'
+import { type CommandHandler, CommandType } from '@/shared/lib/interaction-events/commands'
 
 export enum PingCommand {
     PingVC = 'pingvc',

@@ -1,10 +1,10 @@
 import type { VoiceState } from 'discord.js'
 
 import { Events } from 'discord.js'
-
 import { guildConnections } from '@/features/ai/config'
 import { cleanupGuildConnection } from '@/features/ai/gemini/core'
 import { client } from '@/shared/config/client'
+
 
 export function cleanupWhenDisconnectedEvent() {
     client.on(Events.VoiceStateUpdate, async (oldState: VoiceState, newState: VoiceState) => {

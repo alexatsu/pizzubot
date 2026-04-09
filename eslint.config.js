@@ -13,7 +13,14 @@ export default tseslint.config(
         plugins: {
             perfectionist,
         },
-        ignores: ['**/node_modules/**', '**/dist/**', '**/build/**', 'eslint.config.js'],
+        ignores: [
+            '**/node_modules/**',
+            '**/dist/**',
+            '**/build/**',
+            'eslint.config.js',
+            'prisma.config.ts',
+            'generated/prisma/*',
+        ],
         languageOptions: {
             parserOptions: {
                 project: true,
