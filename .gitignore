@@ -7,3 +7,12 @@ config.json
 .env
 dist
 
+# db
+src/shared/db/local.db
+
+
+/generated/prisma
+dev.db
+/generated/prisma
+
+/generated/prisma

@@ -1,0 +1,55 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/shared/prisma/generated"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String   @id
+  discordUserId String   @unique
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  walletUserId  String   @unique
+
+  wallet Wallet @relation(fields: [walletUserId], references: [userId])
+  roles  Role[]
+
+  @@map("users_table")
+}
+
+model Wallet {
+  userId              String @id
+  pizzuslices         Int    @default(0)
+  monthlySlicesEarned Int    @default(0)
+  monthlyKey          String
+
+  user User?
+
+  @@map("wallet_table")
+}
+
+model Role {
+  id            String   @id
+  userId        String
+  discordRoleId String   @unique
+  roleName      String
+  roleColor     String
+  roleType      RoleType @default(Custom)
+  purchasedAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("roles_table")
+}
+
+enum RoleType {
+  Custom
+}

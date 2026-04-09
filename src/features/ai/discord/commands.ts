@@ -8,26 +8,25 @@ import {
     createAudioPlayer,
 } from '@discordjs/voice'
 import { SlashCommandBuilder, type CacheType } from 'discord.js'
-
 import {
+    type GuildConnectionState,
     config,
     guildConnections,
     inititialMessageAngry,
     inititialMessageFriend,
     roles,
     voices,
-    type GuildConnectionState,
 } from '@/features/ai/config'
 import {
+    clearAiPrompt,
     initAiSession,
     sendInitMessageToAi,
     botAudioToAi,
     cleanupGuildConnection,
     clearAiSession,
     clearOutputStream,
-    clearAiPrompt,
 } from '@/features/ai/gemini/core'
-import { CommandType, type CommandHandler } from '@/shared/lib/commands'
+import { CommandType, type CommandHandler } from '@/shared/lib/interaction-events/commands'
 
 export enum AiCommands {
     Join = 'ai-join',

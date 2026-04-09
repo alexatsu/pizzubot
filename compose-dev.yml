@@ -1,0 +1,28 @@
+services:
+    pizzubot:
+        build: .
+        image: pizzubot-dev-i
+        container_name: pizzubot-dev-c
+        env_file:
+            - .env
+        environment:
+            DATABASE_URL: postgresql://postgres:your_password@postgres:5432/pizzubot
+        restart: unless-stopped
+        depends_on:
+            - postgres
+
+    postgres:
+        image: postgres:18-alpine
+        container_name: pizzubot-dev-postgres-c
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: your_password
+            POSTGRES_DB: pizzubot
+        ports:
+            - '5432:5432'
+        volumes:
+            - pizzubot-dev-v:/var/lib/postgresql/data
+        restart: unless-stopped
+
+volumes:
+    pizzubot-dev-v:

@@ -1,12 +1,13 @@
 import type { EmbedBuilder } from 'discord.js'
 
 import { Events } from 'discord.js'
-
 import { LOG_CHANNEL_ID } from '@/features/logging/config'
 import { getLogColor, LogEventTypes } from '@/features/logging/shared/colors'
 import { createVoiceEmbed } from '@/features/logging/voice/embeds/voice'
 import { client } from '@/shared/config/client'
 import { PREVENT_DUPLICATE_MENTIONS } from '@/shared/config/state'
+
+
 
 export function voiceStateUpdateEvent() {
     client.on(Events.VoiceStateUpdate, async (oldState, newState) => {

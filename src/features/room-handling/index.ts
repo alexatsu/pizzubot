@@ -1,4 +1,4 @@
-import { commandsEvent } from '@/shared/lib/commands'
+import { commandsEvent } from '@/shared/lib/interaction-events/commands'
 
 import { createTempVCEvent } from './auto-create-voice'
 import { pingCommands } from './ping-current-voice'
