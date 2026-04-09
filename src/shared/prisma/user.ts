@@ -1,5 +1,6 @@
-import { prisma } from '@/shared/prisma/client'
 import type { User } from '@/shared/prisma/generated/client'
+
+import { prisma } from '@/shared/prisma/client'
 
 export async function ensureUser(discordUserId: User['discordUserId']) {
     const existingUser = await prisma.user.findFirst({

@@ -1,4 +1,5 @@
 import { Events } from 'discord.js'
+
 import { client } from '@/shared/config/client'
 import { prisma } from '@/shared/prisma/client'
 import { RoleType } from '@/shared/prisma/generated/enums'

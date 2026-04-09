@@ -6,6 +6,7 @@ import {
     type OmitPartialGroupDMChannel,
     type PartialMessage,
 } from 'discord.js'
+
 import { LOG_CHANNEL_ID } from '@/features/logging/config'
 import { getLogColor, LogEventTypes } from '@/features/logging/shared/colors'
 import { isInExcludedCategory } from '@/features/logging/shared/excluded'

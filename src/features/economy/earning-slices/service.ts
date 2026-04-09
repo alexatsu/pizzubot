@@ -1,7 +1,8 @@
 import { Events } from 'discord.js'
+
 import { client } from '@/shared/config/client'
-import { ensureUser } from '@/shared/prisma/user'
 import { prisma } from '@/shared/prisma/client'
+import { ensureUser } from '@/shared/prisma/user'
 
 export enum RewardType {
     ByVoiceActivity = 3,

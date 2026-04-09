@@ -1,11 +1,11 @@
 import { Events, REST, Routes } from 'discord.js'
 
 import { aiCommandsREST } from '@/features/ai/discord/commands'
+import { shopRoleCommandsREST } from '@/features/economy/shop/roles/service'
 import { walletCommandsREST } from '@/features/economy/wallet/service'
 import { pingCommandsREST } from '@/features/room-handling/ping-current-voice'
 import { client } from '@/shared/config/client'
 import { ENV } from '@/shared/config/env'
-import { shopRoleCommandsREST } from '@/features/economy/shop/roles/service'
 
 export async function initCommands() {
     const body = [
