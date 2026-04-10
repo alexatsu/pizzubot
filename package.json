@@ -16,6 +16,7 @@
         "format:check": "prettier --check .",
         "typecheck": "tsc --noEmit",
         "start": "tsx src/index.ts",
+        "commands:clear": "tsx src/cleanup.ts",
         "deploy:db": "pnpm exec prisma migrate deploy && pnpm exec prisma generate"
     },
     "dependencies": {

@@ -3,6 +3,7 @@ import type { CommandInteraction, ModalSubmitInteraction } from 'discord.js'
 import {
     GuildMember,
     LabelBuilder,
+    MessageFlags,
     ModalBuilder,
     SlashCommandBuilder,
     TextInputBuilder,
@@ -45,6 +46,8 @@ export const shopRolesModals: Record<ShopRolesModals, ModalHandler> = {
 }
 
 async function shopRolesBuyCommand(interaction: CommandInteraction<CacheType>) {
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral })
+
     const discordUserId = interaction.user.id
     const userId = await ensureUser(discordUserId)
 
@@ -54,7 +57,7 @@ async function shopRolesBuyCommand(interaction: CommandInteraction<CacheType>) {
     })
 
     if (balance && balance.pizzuslices < roleCost) {
-        await interaction.reply('Недостаточно pizzuslices')
+        await interaction.editReply('Недостаточно pizzuslices')
         return
     }
 
@@ -63,7 +66,7 @@ async function shopRolesBuyCommand(interaction: CommandInteraction<CacheType>) {
     })
 
     if (roles >= roleLimit) {
-        await interaction.reply(
+        await interaction.editReply(
             'Максимум ролей создано, чтобы заменить, используйте /shop-role-swap',
         )
         return
@@ -98,7 +101,7 @@ async function shopRolesBuyCommand(interaction: CommandInteraction<CacheType>) {
 }
 
 async function shopRolesBuyModal(interaction: ModalSubmitInteraction<CacheType>) {
-    await interaction.deferReply({ ephemeral: true })
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral })
 
     const roleName = interaction.fields.getTextInputValue('roleNameInput')
     const roleColor = interaction.fields.getTextInputValue('roleColorInput')
@@ -171,6 +174,8 @@ async function shopRolesBuyModal(interaction: ModalSubmitInteraction<CacheType>)
 }
 
 async function shopRolesSwapCommand(interaction: CommandInteraction<CacheType>) {
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral })
+
     const discordUserId = interaction.user.id
     const userId = await ensureUser(discordUserId)
 
@@ -179,7 +184,7 @@ async function shopRolesSwapCommand(interaction: CommandInteraction<CacheType>) 
     })
 
     if (ownedRoles === 0) {
-        await interaction.reply('У вас нет кастомных ролей для замены')
+        await interaction.editReply('У вас нет кастомных ролей для замены')
         return
     }
 
@@ -222,7 +227,8 @@ async function shopRolesSwapCommand(interaction: CommandInteraction<CacheType>) 
 }
 
 async function shopRolesSwapModal(interaction: ModalSubmitInteraction<CacheType>) {
-    await interaction.deferReply({ ephemeral: true })
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral })
+
     const oldRoleId = interaction.fields.getTextInputValue('oldRoleIdInput')
     const roleName = interaction.fields.getTextInputValue('roleNameInput')
     const roleColor = interaction.fields.getTextInputValue('roleColorInput')
