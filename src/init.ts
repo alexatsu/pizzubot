@@ -7,6 +7,17 @@ import { pingCommandsREST } from '@/features/room-handling/ping-current-voice'
 import { client } from '@/shared/config/client'
 import { ENV } from '@/shared/config/env'
 
+export function initValidateEnv() {
+    const missingVars = Object.entries(ENV)
+        .filter(([key]) => !process.env[key])
+        .map(([key]) => key)
+
+    if (missingVars.length > 0) {
+        console.error(`Missing required environment variables: ${missingVars.join(', ')}`)
+        process.exit(1)
+    }
+}
+
 export async function initCommands() {
     const body = [
         ...pingCommandsREST,
