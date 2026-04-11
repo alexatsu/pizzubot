@@ -4,7 +4,7 @@ import type { PassThrough } from 'stream'
 
 import { Modality, MediaResolution } from '@google/genai'
 
-import { ENV } from '@/shared/config/env'
+import { REQUIRED_ENV } from '@/shared/config/env'
 
 
 export interface GuildConnectionState {
@@ -114,7 +114,7 @@ export const roles = [
 ]
 
 export const model = 'models/gemini-2.5-flash-native-audio-preview-12-2025'
-export const apiKey = ENV.GEMINI_API_KEY
+export const apiKey = REQUIRED_ENV.GEMINI_API_KEY
 export const config = {
     responseModalities: [Modality.AUDIO],
     mediaResolution: MediaResolution.MEDIA_RESOLUTION_MEDIUM,

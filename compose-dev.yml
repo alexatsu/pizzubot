@@ -1,15 +1,15 @@
 services:
-    pizzubot:
-        build: .
-        image: pizzubot-dev-i
-        container_name: pizzubot-dev-c
-        env_file:
-            - .env
-        environment:
-            DATABASE_URL: postgresql://postgres:your_password@postgres:5432/pizzubot
-        restart: unless-stopped
-        depends_on:
-            - postgres
+    # pizzubot:
+    #     build: .
+    #     image: pizzubot-dev-i
+    #     container_name: pizzubot-dev-c
+    #     env_file:
+    #         - .env
+    #     environment:
+    #         DATABASE_URL: postgresql://postgres:your_password@postgres:5432/pizzubot
+    #     restart: unless-stopped
+    #     depends_on:
+    #         - postgres
 
     postgres:
         image: postgres:18-alpine
