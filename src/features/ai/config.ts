@@ -113,7 +113,7 @@ export const roles = [
     },
 ]
 
-export const model = 'models/gemini-2.5-flash-native-audio-preview-12-2025'
+export const model = "models/gemini-3.1-flash-live-preview"
 export const apiKey = REQUIRED_ENV.GEMINI_API_KEY
 export const config = {
     responseModalities: [Modality.AUDIO],

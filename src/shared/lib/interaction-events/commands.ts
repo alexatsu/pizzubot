@@ -42,9 +42,6 @@ export function commandsEvent(handlers: { [key: string]: CommandHandler }) {
                 }
             } catch (error) {
                 console.error(`Error: ${error}`)
-                if (!interaction.replied) {
-                    await interaction.reply({ content: '❌ Error!', ephemeral: true })
-                }
             }
         }
     })

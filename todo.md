@@ -35,9 +35,11 @@
 
 ## add bot test commands cleanup +
 
-## backup feature
-- cron job, daily
-- sends to google drive? the snapshot
+## backup feature +
+- cron job, daily +
+- sends to google drive? the snapshot +
+
+## make ux for swapping role better (maybe dropdown?)
 
 ## update readme with all new features
 

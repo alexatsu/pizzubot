@@ -19,9 +19,6 @@ export function modalEvent(handlers: { [key: string]: ModalHandler }) {
             await modalHandler(interaction)
         } catch (error) {
             console.error(`Error: ${error}`)
-            if (!interaction.replied && !interaction.deferred) {
-                await interaction.reply({ content: '❌ Error!', ephemeral: true })
-            }
         }
     })
 }

@@ -6,6 +6,7 @@ import {
     MessageFlags,
     ModalBuilder,
     SlashCommandBuilder,
+    StringSelectMenuBuilder,
     TextInputBuilder,
     TextInputStyle,
     type CacheType,
@@ -15,6 +16,7 @@ import type { ModalHandler } from '@/shared/lib/interaction-events/modal'
 
 import { type CommandHandler, CommandType } from '@/shared/lib/interaction-events/commands'
 import { prisma } from '@/shared/prisma/client'
+import { RoleType } from '@/shared/prisma/generated/enums'
 import { ensureUser } from '@/shared/prisma/user'
 
 const roleCost = 50 //50 pizzuslices for 1 role
@@ -174,8 +176,6 @@ async function shopRolesBuyModal(interaction: ModalSubmitInteraction<CacheType>)
 }
 
 async function shopRolesSwapCommand(interaction: CommandInteraction<CacheType>) {
-    await interaction.deferReply({ flags: MessageFlags.Ephemeral })
-
     const discordUserId = interaction.user.id
     const userId = await ensureUser(discordUserId)
 
@@ -184,23 +184,33 @@ async function shopRolesSwapCommand(interaction: CommandInteraction<CacheType>) 
     })
 
     if (ownedRoles === 0) {
-        await interaction.editReply('У вас нет кастомных ролей для замены')
+        await interaction.reply('У вас нет кастомных ролей для замены')
         return
     }
-
     const modal = new ModalBuilder()
         .setCustomId(ShopRolesModals.Swap)
         .setTitle('Заменить кастомную роль')
 
-    const oldRoleIdInput = new TextInputBuilder()
+    const roles = await prisma.role.findMany({
+        where: { userId, roleType: RoleType.Custom },
+        select: { discordRoleId: true, roleName: true, roleColor: true },
+    })
+
+    const menu = new StringSelectMenuBuilder()
         .setCustomId('oldRoleIdInput')
-        .setStyle(TextInputStyle.Short)
-        .setMaxLength(32)
-        .setRequired(true)
+        .setMinValues(1)
+        .setMaxValues(1)
+        .addOptions(
+            roles.map(role => ({
+                label: role.roleName,
+                value: role.discordRoleId,
+                description: role.roleColor,
+            })),
+        )
     const oldRoleLabel = new LabelBuilder()
         .setLabel('ID старой роли')
         .setDescription('Роль, которую нужно заменить')
-        .setTextInputComponent(oldRoleIdInput)
+        .setStringSelectMenuComponent(menu)
 
     const roleNameInput = new TextInputBuilder()
         .setCustomId('roleNameInput')
@@ -229,7 +239,7 @@ async function shopRolesSwapCommand(interaction: CommandInteraction<CacheType>) 
 async function shopRolesSwapModal(interaction: ModalSubmitInteraction<CacheType>) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral })
 
-    const oldRoleId = interaction.fields.getTextInputValue('oldRoleIdInput')
+    const [oldRoleId] = interaction.fields.getStringSelectValues('oldRoleIdInput')
     const roleName = interaction.fields.getTextInputValue('roleNameInput')
     const roleColor = interaction.fields.getTextInputValue('roleColorInput')
 
