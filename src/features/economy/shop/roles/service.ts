@@ -184,7 +184,10 @@ async function shopRolesSwapCommand(interaction: CommandInteraction<CacheType>) 
     })
 
     if (ownedRoles === 0) {
-        await interaction.reply('У вас нет кастомных ролей для замены')
+        await interaction.reply({
+            content: 'У вас нет кастомных ролей для замены',
+            flags: MessageFlags.Ephemeral,
+        })
         return
     }
     const modal = new ModalBuilder()

@@ -39,7 +39,7 @@
 - cron job, daily +
 - sends to google drive? the snapshot +
 
-## make ux for swapping role better (maybe dropdown?)
+## make ux for swapping role better (maybe dropdown?) +
 
 ## update readme with all new features
 
