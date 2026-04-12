@@ -69,7 +69,7 @@ export async function addReward(userId: string, rewardType: RewardType, customSl
     })
 
     console.log(
-        `Added ${slicesToAdd} slices for user ${userId} (${rewardType}) - Month: ${monthlyKey} (${isNewMonth ? 'new month' : 'same month'})`,
+        `${customSlices ? '[Voice]' : '[Message]'} Added ${slicesToAdd} slices for user ${userId} (${rewardSlices}) - Month: ${monthlyKey} (${isNewMonth ? 'new month' : 'same month'})`,
     )
 }
 
@@ -101,10 +101,6 @@ const shouldEarnReward = async (intervalsEarned: number, discordUserId: string) 
 
             const userId = await ensureUser(discordUserId)
             await addReward(userId, RewardType.ByVoiceActivity, totalSlices)
-
-            console.log(
-                `User left voice, earned ${intervalsEarned} intervals (${totalSlices} slices)`,
-            )
         }
     } catch (error) {
         console.error(`Error earning reward for user ${discordUserId}:`, error)
@@ -140,7 +136,6 @@ export function earnSlicesByVoiceActivityEvent() {
 
             if (!wasInVoice && isInVoice) {
                 voiceTimers.set(key, new Date())
-                console.log(`User ${discordUserId} joined voice channel at ${voiceTimers.get(key)}`)
             }
 
             if (wasInVoice && !isInVoice) {
