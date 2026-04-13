@@ -48,8 +48,6 @@ export const shopRolesModals: Record<ShopRolesModals, ModalHandler> = {
 }
 
 async function shopRolesBuyCommand(interaction: CommandInteraction<CacheType>) {
-    await interaction.deferReply({ flags: MessageFlags.Ephemeral })
-
     const discordUserId = interaction.user.id
     const userId = await ensureUser(discordUserId)
 
@@ -59,7 +57,10 @@ async function shopRolesBuyCommand(interaction: CommandInteraction<CacheType>) {
     })
 
     if (balance && balance.pizzuslices < roleCost) {
-        await interaction.editReply('Недостаточно pizzuslices')
+        await interaction.reply({
+            content: 'Недостаточно pizzuslices',
+            flags: MessageFlags.Ephemeral,
+        })
         return
     }
 
@@ -68,9 +69,10 @@ async function shopRolesBuyCommand(interaction: CommandInteraction<CacheType>) {
     })
 
     if (roles >= roleLimit) {
-        await interaction.editReply(
-            'Максимум ролей создано, чтобы заменить, используйте /shop-role-swap',
-        )
+        await interaction.reply({
+            content: 'Максимум ролей создано, чтобы заменить, используйте /shop-role-swap',
+            flags: MessageFlags.Ephemeral,
+        })
         return
     }
 
@@ -103,26 +105,31 @@ async function shopRolesBuyCommand(interaction: CommandInteraction<CacheType>) {
 }
 
 async function shopRolesBuyModal(interaction: ModalSubmitInteraction<CacheType>) {
-    await interaction.deferReply({ flags: MessageFlags.Ephemeral })
-
     const roleName = interaction.fields.getTextInputValue('roleNameInput')
     const roleColor = interaction.fields.getTextInputValue('roleColorInput')
 
     const member = interaction.member
     if (!member || !(member instanceof GuildMember)) {
-        await interaction.editReply({ content: 'Не удалось получить участника сервера' })
+        await interaction.reply({
+            content: 'Не удалось получить участника сервера',
+            flags: MessageFlags.Ephemeral,
+        })
         return
     }
 
     if (roleName.length < 1 || roleName.length > 32) {
-        await interaction.editReply({ content: 'Название роли должно быть от 1 до 32 символов' })
+        await interaction.reply({
+            content: 'Название роли должно быть от 1 до 32 символов',
+            flags: MessageFlags.Ephemeral,
+        })
         return
     }
 
     const hexRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/
     if (!hexRegex.test(roleColor)) {
-        await interaction.editReply({
+        await interaction.reply({
             content: 'Неверный формат HEX цвета. Используйте #RRGGBB или #RGB',
+            flags: MessageFlags.Ephemeral,
         })
         return
     }
@@ -162,14 +169,16 @@ async function shopRolesBuyModal(interaction: ModalSubmitInteraction<CacheType>)
 
         await member.roles.add(role)
 
-        await interaction.editReply({
+        await interaction.reply({
             content: `Роль ${roleName} успешно создана и назначена! Остаток: ${balance.pizzuslices - roleCost} pizzuslices`,
+            flags: MessageFlags.Ephemeral,
         })
         return
     } catch (error) {
         console.error('Error creating role:', error)
-        await interaction.editReply({
+        await interaction.reply({
             content: 'Произошла ошибка при создании роли. Пожалуйста, попробуйте позже.',
+            flags: MessageFlags.Ephemeral,
         })
         return
     }
@@ -240,31 +249,32 @@ async function shopRolesSwapCommand(interaction: CommandInteraction<CacheType>) 
 }
 
 async function shopRolesSwapModal(interaction: ModalSubmitInteraction<CacheType>) {
-    await interaction.deferReply({ flags: MessageFlags.Ephemeral })
-
     const [oldRoleId] = interaction.fields.getStringSelectValues('oldRoleIdInput')
     const roleName = interaction.fields.getTextInputValue('roleNameInput')
     const roleColor = interaction.fields.getTextInputValue('roleColorInput')
 
     const member = interaction.member
     if (!member || !(member instanceof GuildMember)) {
-        await interaction.editReply({
+        await interaction.reply({
             content: 'Не удалось получить участника сервера',
+            flags: MessageFlags.Ephemeral,
         })
         return
     }
 
     if (roleName.length < 1 || roleName.length > 32) {
-        await interaction.editReply({
+        await interaction.reply({
             content: 'Название роли должно быть от 1 до 32 символов',
+            flags: MessageFlags.Ephemeral,
         })
         return
     }
 
     const hexRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/
     if (!hexRegex.test(roleColor)) {
-        await interaction.editReply({
+        await interaction.reply({
             content: 'Неверный формат HEX цвета. Используйте #RRGGBB или #RGB',
+            flags: MessageFlags.Ephemeral,
         })
         return
     }
@@ -276,8 +286,9 @@ async function shopRolesSwapModal(interaction: ModalSubmitInteraction<CacheType>
     })
 
     if (!ownedRole) {
-        await interaction.editReply({
+        await interaction.reply({
             content: 'Эта роль вам не принадлежит или не найдена',
+            flags: MessageFlags.Ephemeral,
         })
         return
     }
@@ -332,14 +343,16 @@ async function shopRolesSwapModal(interaction: ModalSubmitInteraction<CacheType>
             })
         })
 
-        await interaction.editReply({
+        await interaction.reply({
             content: `Роль успешно заменена на ${roleName}. Списано ${roleCost} pizzuslices.`,
+            flags: MessageFlags.Ephemeral,
         })
         return
     } catch (error) {
         console.error('Error swapping role:', error)
-        await interaction.editReply({
+        await interaction.reply({
             content: 'Произошла ошибка при замене роли. Пожалуйста, попробуйте позже.',
+            flags: MessageFlags.Ephemeral,
         })
         return
     }
