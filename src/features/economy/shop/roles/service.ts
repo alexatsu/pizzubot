@@ -33,8 +33,12 @@ export enum ShopRolesModals {
 }
 
 export const shopRoleCommandsREST = [
-    new SlashCommandBuilder().setName(ShopRolesCommands.Buy).setDescription('купить роль'),
-    new SlashCommandBuilder().setName(ShopRolesCommands.Swap).setDescription('поменять роль'),
+    new SlashCommandBuilder()
+        .setName(ShopRolesCommands.Buy)
+        .setDescription(`купить роль, 1 роль = ${roleCost} pizzuslices`),
+    new SlashCommandBuilder()
+        .setName(ShopRolesCommands.Swap)
+        .setDescription(`поменять роль, стоит ${roleCost} pizzuslices`),
 ].map(c => c.toJSON())
 
 export const shopRolesCommands: Record<ShopRolesCommands, CommandHandler> = {
@@ -96,8 +100,8 @@ async function shopRolesBuyCommand(interaction: CommandInteraction<CacheType>) {
         .setMaxLength(7)
         .setRequired(true)
     const roleColorLabel = new LabelBuilder()
-        .setLabel('Hex цвет, например #FFAA00')
-        .setDescription('цвет для кастомной роли')
+        .setLabel('Hex цвет, например FFAA00')
+        .setDescription('цвет для кастомной роли, вводите без #')
         .setTextInputComponent(roleColorInput)
 
     modal.addLabelComponents([roleNameLabel, roleColorLabel])
@@ -128,7 +132,7 @@ async function shopRolesBuyModal(interaction: ModalSubmitInteraction<CacheType>)
     const hexRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/
     if (!hexRegex.test(roleColor)) {
         await interaction.reply({
-            content: 'Неверный формат HEX цвета. Используйте #RRGGBB или #RGB',
+            content: 'Неверный формат HEX цвета. Используйте RRGGBB или RGB',
             flags: MessageFlags.Ephemeral,
         })
         return
@@ -240,8 +244,8 @@ async function shopRolesSwapCommand(interaction: CommandInteraction<CacheType>) 
         .setMaxLength(7)
         .setRequired(true)
     const roleColorLabel = new LabelBuilder()
-        .setLabel('Новый HEX цвет, например #FFAA00')
-        .setDescription('цвет для кастомной роли')
+        .setLabel('Новый HEX цвет, например FFAA00')
+        .setDescription('цвет для кастомной роли, вводите без #')
         .setTextInputComponent(roleColorInput)
 
     modal.addLabelComponents([oldRoleLabel, roleNameLabel, roleColorLabel])
@@ -273,7 +277,7 @@ async function shopRolesSwapModal(interaction: ModalSubmitInteraction<CacheType>
     const hexRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/
     if (!hexRegex.test(roleColor)) {
         await interaction.reply({
-            content: 'Неверный формат HEX цвета. Используйте #RRGGBB или #RGB',
+            content: 'Неверный формат HEX цвета. Используйте RRGGBB или RGB',
             flags: MessageFlags.Ephemeral,
         })
         return
