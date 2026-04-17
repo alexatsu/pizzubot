@@ -138,6 +138,14 @@ async function shopRolesBuyModal(interaction: ModalSubmitInteraction<CacheType>)
         return
     }
 
+    if (roleName.includes('🍕')) {
+        await interaction.reply({
+            content: 'Нельзя использовать 🍕 в названии роли',
+            flags: MessageFlags.Ephemeral,
+        })
+        return
+    }
+
     const discordUserId = interaction.user.id
     const userId = await ensureUser(discordUserId)
 
@@ -278,6 +286,14 @@ async function shopRolesSwapModal(interaction: ModalSubmitInteraction<CacheType>
     if (!hexRegex.test(roleColor)) {
         await interaction.reply({
             content: 'Неверный формат HEX цвета. Используйте RRGGBB или RGB',
+            flags: MessageFlags.Ephemeral,
+        })
+        return
+    }
+
+    if (roleName.includes('🍕')) {
+        await interaction.reply({
+            content: 'Нельзя использовать 🍕 в названии роли',
             flags: MessageFlags.Ephemeral,
         })
         return
