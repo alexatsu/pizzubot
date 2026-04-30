@@ -25,3 +25,7 @@
 - create `.env` file with your data. Reference ci folder.
 - pnpm install
 - pnpm start
+
+## for production
+- add optional env for google drive (backups)
+- setup json data for GD and run ```export GOOGLE_APPLICATION_CREDENTIALS="/path/to/your/keyfile.json"``` replace path with your key data
