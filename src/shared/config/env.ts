@@ -11,12 +11,11 @@ export const REQUIRED_ENV = {
     POSTGRES_DB: process.env.POSTGRES_DB!,
     POSTGRES_HOST: process.env.POSTGRES_HOST!,
     POSTGRES_PORT: process.env.POSTGRES_PORT!,
-
-    NODE_ENV: process.env.NODE_ENV!,
 } as const
 
 export const OPTIONAL_ENV = {
-  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
-  GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
-  GOOGLE_REFRESH_TOKEN: process.env.GOOGLE_REFRESH_TOKEN,
+    NODE_ENV: process.env.NODE_ENV,
+    GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+    GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+    GOOGLE_REFRESH_TOKEN: process.env.GOOGLE_REFRESH_TOKEN,
 } as const

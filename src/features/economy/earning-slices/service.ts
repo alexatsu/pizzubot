@@ -37,44 +37,40 @@ export async function addReward(userId: string, rewardType: RewardType, customSl
     }
 
     const isNewMonth = existing.monthlyKey !== monthlyKey
+
+    if (isNewMonth) {
+        console.log(`Month changed for user ${userId}: ${existing.monthlyKey} -> ${monthlyKey}`)
+    }
+
     const currentMonthlySlices = isNewMonth ? 0 : existing.monthlySlicesEarned
     const remainingSlices = Math.max(0, monthlyLimit - currentMonthlySlices)
     const slicesToAdd = Math.min(rewardSlices, remainingSlices)
 
     if (slicesToAdd === 0) {
-        if (isNewMonth) {
-            await prisma.wallet.update({
-                where: { userId },
-                data: {
-                    monthlyKey,
-                    monthlySlicesEarned: 0,
-                },
-            })
-        }
+        console.log(
+            `Monthly limit reached for user ${userId} (${currentMonthlySlices}/${monthlyLimit})`,
+        )
         return
     }
 
-    if (isNewMonth) {
-        await prisma.wallet.update({
-            where: { userId },
-            data: {
-                pizzuslices: { increment: slicesToAdd },
-                monthlySlicesEarned: slicesToAdd,
-                monthlyKey,
-            },
-        })
-    } else {
-        await prisma.wallet.update({
-            where: { userId },
-            data: {
-                pizzuslices: { increment: slicesToAdd },
-                monthlySlicesEarned: { increment: slicesToAdd },
-                monthlyKey,
-            },
-        })
-    }
+    await prisma.wallet.update({
+        where: { userId },
+        data: isNewMonth
+            ? {
+                  pizzuslices: { increment: slicesToAdd },
+                  monthlySlicesEarned: slicesToAdd,
+                  monthlyKey,
+              }
+            : {
+                  pizzuslices: { increment: slicesToAdd },
+                  monthlySlicesEarned: { increment: slicesToAdd },
+                  monthlyKey,
+              },
+    })
 
-    console.log(`Added ${slicesToAdd} slices for user ${userId} (${rewardType})`)
+    console.log(
+        `${customSlices ? '[Voice]' : '[Message]'} Added ${slicesToAdd} slices for user ${userId} (${rewardSlices}) - Month: ${monthlyKey} (${isNewMonth ? 'new month' : 'same month'})`,
+    )
 }
 
 export function earnSlicesByCreateMessageEvent() {
@@ -105,10 +101,6 @@ const shouldEarnReward = async (intervalsEarned: number, discordUserId: string) 
 
             const userId = await ensureUser(discordUserId)
             await addReward(userId, RewardType.ByVoiceActivity, totalSlices)
-
-            console.log(
-                `User left voice, earned ${intervalsEarned} intervals (${totalSlices} slices)`,
-            )
         }
     } catch (error) {
         console.error(`Error earning reward for user ${discordUserId}:`, error)
@@ -144,7 +136,6 @@ export function earnSlicesByVoiceActivityEvent() {
 
             if (!wasInVoice && isInVoice) {
                 voiceTimers.set(key, new Date())
-                console.log(`User ${discordUserId} joined voice channel at ${voiceTimers.get(key)}`)
             }
 
             if (wasInVoice && !isInVoice) {
