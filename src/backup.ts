@@ -83,12 +83,12 @@ export async function handleBackup() {
 
     const dbName = REQUIRED_ENV.POSTGRES_DB
     const dbUser = REQUIRED_ENV.POSTGRES_USER
-    const dbPassword = REQUIRED_ENV.POSTGRES_PASSWORD
+    // const dbPassword = REQUIRED_ENV.POSTGRES_PASSWORD
     const isDev = OPTIONAL_ENV.NODE_ENV === 'dev'
     const dockerContainerName = `pizzubot-${isDev ? 'dev' : 'prod'}-postgres-c`
 
-    const cmd = `docker exec -e PGPASSWORD=${dbPassword} ${dockerContainerName} pg_dump -U ${dbUser} ${dbName} > "${filePath}"`
-
+    // const cmd = `docker exec -e PGPASSWORD=${dbPassword} ${dockerContainerName} pg_dump -U ${dbUser} ${dbName} > "${filePath}"`
+    const cmd = `pg_dump -h ${dockerContainerName} -U ${dbUser} ${dbName} > "${filePath}"`
     exec(cmd, async (err, stdout, stderr) => {
         if (err) {
             console.error('Backup failed:', err.message)
@@ -106,3 +106,5 @@ export async function handleBackup() {
         }
     })
 }
+
+await handleBackup()
