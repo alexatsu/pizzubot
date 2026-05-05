@@ -74,7 +74,7 @@ export async function handleBackup() {
     }
 
     initValidateEnv()
-
+    console.log('handleBackup started')
     const backupDir = path.resolve('backups')
     if (!fs.existsSync(backupDir)) fs.mkdirSync(backupDir, { recursive: true })
 
