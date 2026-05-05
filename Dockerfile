@@ -4,6 +4,7 @@ COPY package.json pnpm-lock.yaml ./
 RUN npm install -g pnpm && pnpm install
 
 FROM node:25-alpine
+RUN apk add --no-cache postgresql-client
 WORKDIR /app
 RUN npm install -g pnpm
 COPY --from=builder /app/node_modules ./node_modules
