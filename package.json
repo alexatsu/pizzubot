@@ -1,6 +1,6 @@
 {
     "name": "pizzubot",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "keywords": [
         "bot",
         "ts"
@@ -16,7 +16,7 @@
         "format:check": "prettier --check .",
         "typecheck": "tsc --noEmit",
         "start": "tsx src/index.ts",
-        "commands:clear": "tsx src/cleanup.ts",
+        "cleanup": "tsx src/cleanup.ts",
         "deploy:db": "pnpm exec prisma migrate deploy && pnpm exec prisma generate"
     },
     "dependencies": {

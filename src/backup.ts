@@ -34,15 +34,32 @@ function getDriveClient() {
 }
 
 async function uploadToDrive(filePath: string, fileName: string) {
-    const drive = getDriveClient()
+    try {
+        const drive = getDriveClient()
+        console.log('Drive client created')
 
-    const res = await drive.files.create({
-        requestBody: { name: fileName, parents: [DRIVE_FOLDER_ID] },
-        media: { mimeType: 'application/sql', body: fs.createReadStream(filePath) },
-        fields: 'id',
-    })
+        // Check if file exists and read it
+        const fileStats = fs.statSync(filePath)
+        console.log(`File size: ${fileStats.size} bytes`)
 
-    return res.data.id
+        const res = await drive.files.create({
+            requestBody: {
+                name: fileName,
+                parents: [DRIVE_FOLDER_ID],
+            },
+            media: {
+                mimeType: 'application/sql',
+                body: fs.createReadStream(filePath),
+            },
+            fields: 'id',
+        })
+
+        console.log('Upload successful, file ID:', res.data.id)
+        return res.data.id
+    } catch (error) {
+        console.error('Upload error details:', error)
+        throw error
+    }
 }
 
 async function cleanupOldBackups() {
@@ -74,7 +91,7 @@ export async function handleBackup() {
     }
 
     initValidateEnv()
-
+    console.log('handleBackup started')
     const backupDir = path.resolve('backups')
     if (!fs.existsSync(backupDir)) fs.mkdirSync(backupDir, { recursive: true })
 
@@ -83,28 +100,46 @@ export async function handleBackup() {
 
     const dbName = REQUIRED_ENV.POSTGRES_DB
     const dbUser = REQUIRED_ENV.POSTGRES_USER
-    // const dbPassword = REQUIRED_ENV.POSTGRES_PASSWORD
+    const dbPassword = REQUIRED_ENV.POSTGRES_PASSWORD
     const isDev = OPTIONAL_ENV.NODE_ENV === 'dev'
-    const dockerContainerName = `pizzubot-${isDev ? 'dev' : 'prod'}-postgres-c`
+    const dbHost = `pizzubot-${isDev ? 'dev' : 'prod'}-postgres-c`
 
-    // const cmd = `docker exec -e PGPASSWORD=${dbPassword} ${dockerContainerName} pg_dump -U ${dbUser} ${dbName} > "${filePath}"`
-    const cmd = `pg_dump -h ${dockerContainerName} -U ${dbUser} ${dbName} > "${filePath}"`
+    const cmd = `PGPASSWORD=${dbPassword} pg_dump -h ${dbHost} -U ${dbUser} ${dbName} > "${filePath}"`
+
+    console.log('Running backup command...')
     exec(cmd, async (err, stdout, stderr) => {
         if (err) {
             console.error('Backup failed:', err.message)
-            console.error(stderr)
+            console.error('Stderr:', stderr)
+            console.error('Stdout:', stdout)
             return
         }
 
         try {
-            const fileId = await uploadToDrive(filePath, fileName)
-            console.log('Backup uploaded to Drive:', fileId)
-            await cleanupOldBackups()
-            fs.rmSync(backupDir, { recursive: true, force: true })
+            console.log('Upload to drive start')
+            // Check if file was created and has content
+            if (fs.existsSync(filePath)) {
+                const stats = fs.statSync(filePath)
+                console.log(`Backup file created: ${filePath}, size: ${stats.size} bytes`)
+
+                if (stats.size === 0) {
+                    console.error('Backup file is empty!')
+                    return
+                }
+
+                const fileId = await uploadToDrive(filePath, fileName)
+                console.log('Backup uploaded to Drive:', fileId)
+                await cleanupOldBackups()
+            } else {
+                console.error('Backup file was not created')
+                return
+            }
         } catch (uploadErr) {
             console.error('Upload failed:', uploadErr)
+        } finally {
+            if (fs.existsSync(backupDir)) {
+                fs.rmSync(backupDir, { recursive: true, force: true })
+            }
         }
     })
 }
-
-await handleBackup()
