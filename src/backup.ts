@@ -35,13 +35,13 @@ function getDriveClient() {
 
 async function uploadToDrive(filePath: string, fileName: string) {
     const drive = getDriveClient()
-
+    console.log(drive, 'here is the drive')
     const res = await drive.files.create({
         requestBody: { name: fileName, parents: [DRIVE_FOLDER_ID] },
         media: { mimeType: 'application/sql', body: fs.createReadStream(filePath) },
         fields: 'id',
     })
-
+    console.log('here is the res')
     return res.data.id
 }
 
@@ -97,6 +97,7 @@ export async function handleBackup() {
         }
 
         try {
+            console.log('upload to drive start')
             const fileId = await uploadToDrive(filePath, fileName)
             console.log('Backup uploaded to Drive:', fileId)
             await cleanupOldBackups()
