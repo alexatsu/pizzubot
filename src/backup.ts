@@ -107,5 +107,3 @@ export async function handleBackup() {
         }
     })
 }
-
-await handleBackup()
