@@ -14,10 +14,9 @@
         "verbatimModuleSyntax": true,
         "typeRoots": ["./node_modules/@types", "src/shared/types"],
         "outDir": "dist",
-        "baseUrl": "./src", // Enables absolute imports from "src"
         "rootDir": "src",
         "paths": {
-            "@/*": ["./*"] // Optional: Map "@/" to "./src/"
+            "@/*": ["./src/*"] // Optional: Map "@/" to "./src/"
         }
     },
     "include": ["src/**/*", "assets"],
