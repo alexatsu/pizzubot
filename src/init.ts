@@ -57,8 +57,9 @@ export function initBackup() {
         return
     }
 
+    console.log('Scheduled backup for midnight')
     cron.schedule('0 0 * * *', async () => {
-        console.log('[CRON] triggered at', new Date().toISOString())
+        console.log('Running scheduled backup...')
         await handleBackup()
     })
 }
